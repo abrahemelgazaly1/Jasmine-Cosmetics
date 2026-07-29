@@ -20,7 +20,10 @@ app.use((_req, res, next) => {
     .then(() => next())
     .catch((err) => {
       console.error('Database connection failed', err);
-      res.status(500).json({ message: 'Database connection failed' });
+      res.status(500).json({
+        message: 'Database connection failed',
+        detail: err instanceof Error ? err.message : String(err),
+      });
     });
 });
 

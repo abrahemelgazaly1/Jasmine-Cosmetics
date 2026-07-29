@@ -10,11 +10,14 @@ export function connectDB(): Promise<typeof mongoose> {
   }
   if (!connection) {
     mongoose.set('strictQuery', true);
-    // Don't cache a rejected connection, so the next request can retry.
-    connection = mongoose.connect(env.mongoUri).catch((err) => {
-      connection = null;
-      throw err;
-    });
+    // Fail fast instead of hanging until the serverless function times out.
+    connection = mongoose
+      .connect(env.mongoUri, { serverSelectionTimeoutMS: 8000 })
+      // Don't cache a rejected connection, so the next request can retry.
+      .catch((err) => {
+        connection = null;
+        throw err;
+      });
   }
   return connection;
 }

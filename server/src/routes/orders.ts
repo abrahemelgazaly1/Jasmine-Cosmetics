@@ -4,7 +4,7 @@ import { Order } from '../models/Order.js';
 import { Product } from '../models/Product.js';
 import { PromoCode, promoStatus } from '../models/PromoCode.js';
 import { auth, optionalAuth, requireAdmin } from '../middleware/auth.js';
-import { SHIPPING_FEE } from '../config.js';
+import { shippingFor } from '../config.js';
 
 const router = Router();
 
@@ -87,13 +87,14 @@ router.post('/', optionalAuth, async (req, res) => {
     await promo.save();
   }
 
-  const total = subtotal + SHIPPING_FEE - discount;
+  const shipping = shippingFor(customer.governorate);
+  const total = subtotal + shipping - discount;
   const order = await Order.create({
     user: req.user?.id ?? null,
     items: orderItems,
     customer,
     subtotal,
-    shipping: SHIPPING_FEE,
+    shipping,
     discount,
     promoCode: appliedCode,
     total,

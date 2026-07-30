@@ -72,3 +72,19 @@ export interface Paginated<T> {
   page: number;
   pages: number;
 }
+
+export interface PromoCode {
+  _id: string;
+  code: string;
+  discountPercent: number;
+  maxUse: number;
+  usedCount: number;
+  expiresAt: string;
+  createdAt: string;
+}
+
+// A promo code that has been validated and applied to the cart.
+export interface AppliedPromo {
+  code: string;
+  discountPercent: number;
+}

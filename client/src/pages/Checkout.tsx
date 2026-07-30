@@ -6,7 +6,8 @@ import { useAuth } from '../context/AuthContext';
 import { formatPrice, effectivePrice, GOVERNORATES } from '../lib/constants';
 import { swal } from '../lib/swal';
 import { useDocumentTitle } from '../lib/seo';
-import type { CustomerInfo } from '../types';
+import { TrashIcon } from '../components/icons';
+import type { CustomerInfo, AppliedPromo } from '../types';
 
 const emptyInfo: CustomerInfo = {
   fullName: '',
@@ -17,9 +18,14 @@ const emptyInfo: CustomerInfo = {
   phone2: '',
 };
 
+interface AxiosishError {
+  response?: { data?: { message?: string } };
+}
+
 export default function Checkout() {
   useDocumentTitle('Checkout');
-  const { items, subtotal, shipping, total, clear } = useCart();
+  const { items, subtotal, shipping, discount, total, promo, clear, applyPromo, removePromo } =
+    useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -27,6 +33,30 @@ export default function Checkout() {
   const [saveInfo, setSaveInfo] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  const [codeInput, setCodeInput] = useState('');
+  const [checking, setChecking] = useState(false);
+  const [promoError, setPromoError] = useState('');
+
+  async function checkPromo() {
+    const code = codeInput.trim();
+    if (!code) return;
+    setChecking(true);
+    setPromoError('');
+    try {
+      const { data } = await api.post<AppliedPromo & { valid: boolean }>('/promocodes/validate', {
+        code,
+      });
+      applyPromo({ code: data.code, discountPercent: data.discountPercent });
+      setCodeInput('');
+    } catch (err) {
+      const message =
+        (err as AxiosishError)?.response?.data?.message ?? 'This promo code is not valid.';
+      setPromoError(message);
+    } finally {
+      setChecking(false);
+    }
+  }
 
   useEffect(() => {
     const local = localStorage.getItem('jc_saved_info');
@@ -57,6 +87,7 @@ export default function Checkout() {
       const phone1 = info.phone1.startsWith('+20') ? info.phone1 : `+20${info.phone1}`;
       const payload = {
         items: items.map((i) => ({ product: i.product._id, qty: i.qty, color: i.color ?? '' })),
+        promoCode: promo?.code ?? '',
         customer: { ...info, phone1 },
       };
       const { data } = await api.post('/orders', payload);
@@ -77,7 +108,10 @@ export default function Checkout() {
       });
       navigate('/');
     } catch (err) {
-      setError('Could not place order. Please check your details and try again.');
+      const message =
+        (err as AxiosishError)?.response?.data?.message ??
+        'Could not place order. Please check your details and try again.';
+      setError(message);
     } finally {
       setSubmitting(false);
     }
@@ -124,10 +158,67 @@ export default function Checkout() {
               <span>Delivery Fee</span>
               <span>{formatPrice(shipping)}</span>
             </div>
+            {promo && (
+              <div className="flex justify-between text-green-600">
+                <span>Discount ({promo.discountPercent}%)</span>
+                <span>-{formatPrice(discount)}</span>
+              </div>
+            )}
             <div className="flex justify-between text-base font-semibold text-ink">
               <span>Total</span>
               <span>{formatPrice(total)}</span>
             </div>
+          </div>
+
+          {/* Promo code */}
+          <div className="mt-5">
+            <p className="mb-2 text-sm text-ink/70">Do you have a promo code?</p>
+            {promo ? (
+              <div className="flex items-center justify-between gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm">
+                <span className="font-medium text-green-700">
+                  {promo.code} applied ({promo.discountPercent}% off)
+                </span>
+                <button
+                  onClick={() => {
+                    removePromo();
+                    setPromoError('');
+                  }}
+                  className="text-ink/50 hover:text-red-500"
+                  aria-label="Remove promo code"
+                >
+                  <TrashIcon className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-stretch gap-2">
+                  <input
+                    value={codeInput}
+                    onChange={(e) => {
+                      setCodeInput(e.target.value.toUpperCase());
+                      setPromoError('');
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        checkPromo();
+                      }
+                    }}
+                    placeholder="Enter code"
+                    className="input flex-1"
+                  />
+                  <button
+                    type="button"
+                    onClick={checkPromo}
+                    disabled={checking || !codeInput.trim()}
+                    className="btn-primary shrink-0 px-5 disabled:opacity-60"
+                  >
+                    {checking ? '...' : 'CHECK'}
+                  </button>
+                </div>
+                {promoError && <p className="mt-2 text-sm text-red-500">{promoError}</p>}
+              </>
+            )}
           </div>
         </div>
 

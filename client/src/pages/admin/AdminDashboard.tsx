@@ -4,8 +4,9 @@ import type { Product } from '../../types';
 import AdminAddProduct from './AdminAddProduct';
 import AdminManageProducts from './AdminManageProducts';
 import AdminOrders from './AdminOrders';
+import AdminPromoCodes from './AdminPromoCodes';
 
-type Tab = 'add' | 'manage' | 'orders';
+type Tab = 'add' | 'manage' | 'orders' | 'promocodes';
 
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
@@ -16,6 +17,7 @@ export default function AdminDashboard() {
     { key: 'add', label: 'Add Product' },
     { key: 'manage', label: 'Manage Products' },
     { key: 'orders', label: 'Orders' },
+    { key: 'promocodes', label: 'Promo Codes' },
   ];
 
   function startEdit(p: Product) {
@@ -69,6 +71,7 @@ export default function AdminDashboard() {
         )}
         {tab === 'manage' && <AdminManageProducts onEdit={startEdit} />}
         {tab === 'orders' && <AdminOrders />}
+        {tab === 'promocodes' && <AdminPromoCodes />}
       </main>
     </div>
   );

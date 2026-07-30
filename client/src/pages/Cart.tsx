@@ -1,14 +1,45 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import { useCart, lineId } from '../context/CartContext';
+import { api } from '../lib/api';
 import { formatPrice, effectivePrice, findColorOption } from '../lib/constants';
 import QuantityStepper from '../components/QuantityStepper';
 import { TrashIcon } from '../components/icons';
-import type { Category } from '../types';
+import type { Category, AppliedPromo } from '../types';
 import { useDocumentTitle } from '../lib/seo';
+
+interface AxiosishError {
+  response?: { data?: { message?: string } };
+}
 
 export default function Cart() {
   useDocumentTitle('Your Cart');
-  const { items, subtotal, shipping, total, setQty, removeItem } = useCart();
+  const { items, subtotal, shipping, discount, total, promo, setQty, removeItem, applyPromo, removePromo } =
+    useCart();
+
+  const [codeInput, setCodeInput] = useState('');
+  const [checking, setChecking] = useState(false);
+  const [promoError, setPromoError] = useState('');
+
+  async function checkPromo() {
+    const code = codeInput.trim();
+    if (!code) return;
+    setChecking(true);
+    setPromoError('');
+    try {
+      const { data } = await api.post<AppliedPromo & { valid: boolean }>('/promocodes/validate', {
+        code,
+      });
+      applyPromo({ code: data.code, discountPercent: data.discountPercent });
+      setCodeInput('');
+    } catch (err) {
+      const message =
+        (err as AxiosishError)?.response?.data?.message ?? 'This promo code is not valid.';
+      setPromoError(message);
+    } finally {
+      setChecking(false);
+    }
+  }
 
   if (items.length === 0) {
     return (
@@ -90,12 +121,69 @@ export default function Cart() {
               <span>Shipping / Delivery</span>
               <span>{formatPrice(shipping)}</span>
             </div>
+            {promo && (
+              <div className="flex justify-between text-green-600">
+                <span>Discount ({promo.discountPercent}%)</span>
+                <span>-{formatPrice(discount)}</span>
+              </div>
+            )}
             <hr className="border-pink-soft" />
             <div className="flex justify-between text-base font-semibold text-ink">
               <span>Total</span>
               <span>{formatPrice(total)}</span>
             </div>
           </div>
+
+          {/* Promo code */}
+          <div className="mt-5">
+            <p className="mb-2 text-sm text-ink/70">Do you have a promo code?</p>
+            {promo ? (
+              <div className="flex items-center justify-between gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm">
+                <span className="font-medium text-green-700">
+                  {promo.code} applied ({promo.discountPercent}% off)
+                </span>
+                <button
+                  onClick={() => {
+                    removePromo();
+                    setPromoError('');
+                  }}
+                  className="text-ink/50 hover:text-red-500"
+                  aria-label="Remove promo code"
+                >
+                  <TrashIcon className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-stretch gap-2">
+                  <input
+                    value={codeInput}
+                    onChange={(e) => {
+                      setCodeInput(e.target.value.toUpperCase());
+                      setPromoError('');
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        checkPromo();
+                      }
+                    }}
+                    placeholder="Enter code"
+                    className="input flex-1"
+                  />
+                  <button
+                    onClick={checkPromo}
+                    disabled={checking || !codeInput.trim()}
+                    className="btn-primary shrink-0 px-5 disabled:opacity-60"
+                  >
+                    {checking ? '...' : 'CHECK'}
+                  </button>
+                </div>
+                {promoError && <p className="mt-2 text-sm text-red-500">{promoError}</p>}
+              </>
+            )}
+          </div>
+
           <Link to="/checkout" className="btn-primary mt-6 w-full">
             Proceed to Checkout
           </Link>

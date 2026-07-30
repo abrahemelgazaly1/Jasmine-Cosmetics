@@ -7,6 +7,7 @@ import productRoutes from './_products.routes';
 import categoryRoutes from './_categories.routes';
 import orderRoutes from './_orders.routes';
 import userRoutes from './_users.routes';
+import promoCodeRoutes from './_promocodes.routes';
 
 // Single serverless function that handles every /api/* request on Vercel.
 const app = express();
@@ -33,6 +34,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/promocodes', promoCodeRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

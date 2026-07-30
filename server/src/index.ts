@@ -8,6 +8,7 @@ import productRoutes from './routes/products.js';
 import categoryRoutes from './routes/categories.js';
 import orderRoutes from './routes/orders.js';
 import userRoutes from './routes/users.js';
+import promoCodeRoutes from './routes/promocodes.js';
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/promocodes', promoCodeRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

@@ -26,6 +26,8 @@ const orderSchema = new Schema(
     },
     subtotal: { type: Number, required: true },
     shipping: { type: Number, required: true },
+    discount: { type: Number, default: 0 },
+    promoCode: { type: String, default: '' },
     total: { type: Number, required: true },
     paymentMethod: { type: String, enum: ['COD'], default: 'COD' },
     status: {

@@ -77,6 +77,8 @@ const orderSchema = new Schema(
     },
     subtotal: { type: Number, required: true },
     shipping: { type: Number, required: true },
+    discount: { type: Number, default: 0 },
+    promoCode: { type: String, default: '' },
     total: { type: Number, required: true },
     paymentMethod: { type: String, enum: ['COD'], default: 'COD' },
     status: {
@@ -88,10 +90,23 @@ const orderSchema = new Schema(
   { timestamps: true }
 );
 
+/* ------------------------------- PromoCode ------------------------------ */
+const promoCodeSchema = new Schema(
+  {
+    code: { type: String, required: true, unique: true, uppercase: true, trim: true },
+    discountPercent: { type: Number, required: true, min: 1, max: 100 },
+    maxUse: { type: Number, required: true, min: 1 },
+    usedCount: { type: Number, default: 0, min: 0 },
+    expiresAt: { type: Date, required: true },
+  },
+  { timestamps: true }
+);
+
 export type CategoryDoc = InferSchemaType<typeof categorySchema>;
 export type UserDoc = InferSchemaType<typeof userSchema>;
 export type ProductDoc = InferSchemaType<typeof productSchema> & { _id: Types.ObjectId };
 export type OrderDoc = InferSchemaType<typeof orderSchema>;
+export type PromoCodeDoc = InferSchemaType<typeof promoCodeSchema> & { _id: Types.ObjectId };
 
 // Guard against model re-compilation on warm serverless invocations.
 export const Category =
@@ -99,3 +114,5 @@ export const Category =
 export const User = mongoose.models.User || mongoose.model('User', userSchema);
 export const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
 export const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
+export const PromoCode =
+  mongoose.models.PromoCode || mongoose.model('PromoCode', promoCodeSchema);

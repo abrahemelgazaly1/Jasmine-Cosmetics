@@ -1,8 +1,9 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { Order, Product } from './_models';
+import { Order, Product, PromoCode } from './_models';
 import { auth, optionalAuth, requireAdmin } from './_middleware';
 import { SHIPPING_FEE } from './_config';
+import { promoStatus } from './_promocodes.routes';
 
 const router = Router();
 
@@ -16,6 +17,7 @@ const orderSchema = z.object({
       })
     )
     .min(1),
+  promoCode: z.string().optional().default(''),
   customer: z.object({
     fullName: z.string().min(2),
     email: z.string().email(),
@@ -34,6 +36,7 @@ router.post('/', optionalAuth, async (req, res) => {
     return;
   }
   const { items, customer } = parsed.data;
+  const promoInput = parsed.data.promoCode?.trim().toUpperCase() ?? '';
 
   const productIds = items.map((i) => i.product);
   const products = await Product.find({ _id: { $in: productIds } });
@@ -63,13 +66,35 @@ router.post('/', optionalAuth, async (req, res) => {
     });
   }
 
-  const total = subtotal + SHIPPING_FEE;
+  // Apply a promo code discount when supplied and still valid.
+  let discount = 0;
+  let appliedCode = '';
+  if (promoInput) {
+    const promo = await PromoCode.findOne({ code: promoInput });
+    if (!promo) {
+      res.status(400).json({ message: 'This promo code is not valid.' });
+      return;
+    }
+    const status = promoStatus(promo);
+    if (!status.valid) {
+      res.status(400).json({ message: status.message });
+      return;
+    }
+    discount = Math.round((subtotal * promo.discountPercent) / 100);
+    appliedCode = promo.code;
+    promo.usedCount += 1;
+    await promo.save();
+  }
+
+  const total = subtotal + SHIPPING_FEE - discount;
   const order = await Order.create({
     user: req.user?.id ?? null,
     items: orderItems,
     customer,
     subtotal,
     shipping: SHIPPING_FEE,
+    discount,
+    promoCode: appliedCode,
     total,
     paymentMethod: 'COD',
   });

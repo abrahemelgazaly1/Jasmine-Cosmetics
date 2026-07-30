@@ -69,25 +69,10 @@ export default function Checkout() {
     }
   }
 
+  // Checkout always starts blank; only the governorate carries over from the cart.
   useEffect(() => {
-    const local = localStorage.getItem('jc_saved_info');
-    let loaded: CustomerInfo | null = null;
-    if (user?.savedInfo) {
-      loaded = { ...emptyInfo, ...user.savedInfo };
-    } else if (local) {
-      try {
-        loaded = { ...emptyInfo, ...JSON.parse(local) };
-      } catch {
-        /* ignore */
-      }
-    }
-    // The governorate chosen in the cart takes priority; otherwise fall back to saved info.
-    const resolvedGov = governorate || loaded?.governorate || '';
-    if (loaded) setInfo({ ...loaded, governorate: resolvedGov });
-    else if (resolvedGov) setInfo((prev) => ({ ...prev, governorate: resolvedGov }));
-    if (resolvedGov && resolvedGov !== governorate) setGovernorate(resolvedGov);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+    if (governorate) setInfo((prev) => ({ ...prev, governorate }));
+  }, [governorate]);
 
   function update(field: keyof CustomerInfo, value: string) {
     setInfo((prev) => ({ ...prev, [field]: value }));

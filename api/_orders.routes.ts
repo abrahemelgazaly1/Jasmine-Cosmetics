@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { Order, Product, PromoCode } from './_models';
 import { auth, optionalAuth, requireAdmin } from './_middleware';
-import { SHIPPING_FEE } from './_config';
+import { shippingFor } from './_config';
 import { promoStatus } from './_promocodes.routes';
 
 const router = Router();
@@ -86,13 +86,14 @@ router.post('/', optionalAuth, async (req, res) => {
     await promo.save();
   }
 
-  const total = subtotal + SHIPPING_FEE - discount;
+  const shipping = shippingFor(customer.governorate);
+  const total = subtotal + shipping - discount;
   const order = await Order.create({
     user: req.user?.id ?? null,
     items: orderItems,
     customer,
     subtotal,
-    shipping: SHIPPING_FEE,
+    shipping,
     discount,
     promoCode: appliedCode,
     total,

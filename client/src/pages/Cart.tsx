@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useCart, lineId } from '../context/CartContext';
 import { api } from '../lib/api';
-import { formatPrice, effectivePrice, findColorOption } from '../lib/constants';
+import { formatPrice, effectivePrice, findColorOption, GOVERNORATES } from '../lib/constants';
 import QuantityStepper from '../components/QuantityStepper';
 import { TrashIcon } from '../components/icons';
 import type { Category, AppliedPromo } from '../types';
@@ -14,8 +14,20 @@ interface AxiosishError {
 
 export default function Cart() {
   useDocumentTitle('Your Cart');
-  const { items, subtotal, shipping, discount, total, promo, setQty, removeItem, applyPromo, removePromo } =
-    useCart();
+  const {
+    items,
+    subtotal,
+    shipping,
+    discount,
+    total,
+    promo,
+    governorate,
+    setQty,
+    removeItem,
+    applyPromo,
+    removePromo,
+    setGovernorate,
+  } = useCart();
 
   const [codeInput, setCodeInput] = useState('');
   const [checking, setChecking] = useState(false);
@@ -112,6 +124,24 @@ export default function Cart() {
         {/* Summary */}
         <div className="h-fit rounded-2xl border border-pink-light bg-pink-light p-6">
           <h2 className="mb-4 font-serif text-xl text-ink">Order Summary</h2>
+
+          {/* Governorate → delivery fee */}
+          <div className="mb-4">
+            <label className="mb-1 block text-sm text-ink/70">Governorate</label>
+            <select
+              value={governorate}
+              onChange={(e) => setGovernorate(e.target.value)}
+              className="input w-full"
+            >
+              <option value="">Select Governorate</option>
+              {GOVERNORATES.map((g) => (
+                <option key={g} value={g}>
+                  {g}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div className="space-y-3 text-sm">
             <div className="flex justify-between text-ink/70">
               <span>Subtotal</span>
@@ -119,7 +149,7 @@ export default function Cart() {
             </div>
             <div className="flex justify-between text-ink/70">
               <span>Shipping / Delivery</span>
-              <span>{formatPrice(shipping)}</span>
+              <span>{governorate ? formatPrice(shipping) : '—'}</span>
             </div>
             {promo && (
               <div className="flex justify-between text-green-600">

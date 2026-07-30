@@ -24,8 +24,19 @@ interface AxiosishError {
 
 export default function Checkout() {
   useDocumentTitle('Checkout');
-  const { items, subtotal, shipping, discount, total, promo, clear, applyPromo, removePromo } =
-    useCart();
+  const {
+    items,
+    subtotal,
+    shipping,
+    discount,
+    total,
+    promo,
+    governorate,
+    clear,
+    applyPromo,
+    removePromo,
+    setGovernorate,
+  } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -60,15 +71,22 @@ export default function Checkout() {
 
   useEffect(() => {
     const local = localStorage.getItem('jc_saved_info');
+    let loaded: CustomerInfo | null = null;
     if (user?.savedInfo) {
-      setInfo({ ...emptyInfo, ...user.savedInfo });
+      loaded = { ...emptyInfo, ...user.savedInfo };
     } else if (local) {
       try {
-        setInfo({ ...emptyInfo, ...JSON.parse(local) });
+        loaded = { ...emptyInfo, ...JSON.parse(local) };
       } catch {
         /* ignore */
       }
     }
+    // The governorate chosen in the cart takes priority; otherwise fall back to saved info.
+    const resolvedGov = governorate || loaded?.governorate || '';
+    if (loaded) setInfo({ ...loaded, governorate: resolvedGov });
+    else if (resolvedGov) setInfo((prev) => ({ ...prev, governorate: resolvedGov }));
+    if (resolvedGov && resolvedGov !== governorate) setGovernorate(resolvedGov);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   function update(field: keyof CustomerInfo, value: string) {
@@ -156,7 +174,7 @@ export default function Checkout() {
             </div>
             <div className="flex justify-between text-ink/70">
               <span>Delivery Fee</span>
-              <span>{formatPrice(shipping)}</span>
+              <span>{governorate ? formatPrice(shipping) : '—'}</span>
             </div>
             {promo && (
               <div className="flex justify-between text-green-600">
@@ -245,7 +263,10 @@ export default function Checkout() {
               <select
                 required
                 value={info.governorate}
-                onChange={(e) => update('governorate', e.target.value)}
+                onChange={(e) => {
+                  update('governorate', e.target.value);
+                  setGovernorate(e.target.value);
+                }}
                 className="input"
               >
                 <option value="">Select Governorate</option>
@@ -303,7 +324,7 @@ export default function Checkout() {
           {error && <p className="text-sm text-red-500">{error}</p>}
 
           <button type="submit" disabled={submitting} className="btn-primary w-full disabled:opacity-60">
-            {submitting ? 'Placing Order...' : 'Order Product'}
+            {submitting ? 'Placing Order...' : 'Place Order'}
           </button>
         </form>
       </div>

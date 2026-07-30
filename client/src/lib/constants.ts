@@ -1,5 +1,40 @@
-export const SHIPPING_FEE = 120;
 export const CURRENCY = 'EGP';
+
+// Delivery fee per governorate (EGP). Keys double as the governorate dropdown options.
+export const SHIPPING_FEES: Record<string, number> = {
+  Cairo: 75,
+  Giza: 75,
+  Alexandria: 75,
+  Qaliubiya: 75,
+  Menofia: 75,
+  Gharbia: 75,
+  Dakahlia: 75,
+  'Kafr El Sheikh': 75,
+  Damietta: 75,
+  Beheira: 75,
+  Sharkia: 65,
+  Ismailia: 95,
+  'Port Said': 95,
+  Suez: 95,
+  Fayoum: 110,
+  'Beni Suef': 110,
+  Minya: 110,
+  Assiut: 110,
+  Sohag: 130,
+  Qena: 130,
+  Luxor: 130,
+  Aswan: 130,
+  'Red Sea': 130,
+  'New Valley': 140,
+  'North Sinai': 140,
+  'South Sinai': 140,
+  Matrouh: 140,
+};
+
+// Returns the delivery fee for a governorate, or 0 when none/unknown is selected.
+export function shippingFor(governorate?: string): number {
+  return governorate ? SHIPPING_FEES[governorate] ?? 0 : 0;
+}
 
 export function formatPrice(value: number): string {
   return `${value.toLocaleString('en-EG')} ${CURRENCY}`;
@@ -60,32 +95,4 @@ export function effectivePrice(product: { price: number; isOffer?: boolean; offe
 }
 
 
-export const GOVERNORATES = [
-  'Cairo',
-  'Giza',
-  'Alexandria',
-  'Dakahlia',
-  'Red Sea',
-  'Beheira',
-  'Fayoum',
-  'Gharbia',
-  'Ismailia',
-  'Menofia',
-  'Minya',
-  'Qaliubiya',
-  'New Valley',
-  'Suez',
-  'Aswan',
-  'Assiut',
-  'Beni Suef',
-  'Port Said',
-  'Damietta',
-  'Sharkia',
-  'South Sinai',
-  'Kafr El Sheikh',
-  'Matrouh',
-  'Luxor',
-  'Qena',
-  'North Sinai',
-  'Sohag',
-];
+export const GOVERNORATES = Object.keys(SHIPPING_FEES);

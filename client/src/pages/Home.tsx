@@ -58,7 +58,7 @@ export default function Home() {
     {
       name: 'Lip Gloss',
       slug: 'lip-gloss',
-      image: '/lipglows.jpeg',
+      image: '/assets/insta1.jpeg',
     },
     {
       name: 'Brows',
@@ -68,8 +68,7 @@ export default function Home() {
     {
       name: 'Liquid Blush',
       slug: 'liquid-blush',
-      image:
-        'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=900&q=80',
+      image: '/assets/liquidblush.jpeg',
     },
   ];
 
@@ -151,7 +150,7 @@ export default function Home() {
                   <img
                     src={c.image}
                     alt={c.name}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
                 <h3 className="mt-3 font-serif text-lg text-ink">{c.name}</h3>
@@ -221,12 +220,12 @@ export default function Home() {
               href={item.href}
               target="_blank"
               rel="noreferrer"
-              className="group relative aspect-square overflow-hidden rounded-xl"
+              className="group relative aspect-square overflow-hidden rounded-xl bg-pink-soft"
             >
               <img
                 src={item.src}
                 alt="Instagram post"
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-110"
               />
               <div className="absolute inset-0 grid place-items-center bg-pink-accent/0 opacity-0 transition group-hover:bg-pink-accent/90 group-hover:opacity-100">
                 <InstagramIcon className="h-7 w-7 text-white" />

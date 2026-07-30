@@ -5,7 +5,7 @@ import Logo from './Logo';
 export default function Footer() {
   return (
     <footer className="mt-20 border-t border-black/10 bg-white text-ink">
-      <div className="container-x grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="container-x grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-3">
         <div>
           <div className="flex items-center gap-3">
             <Logo className="h-11 w-11 ring-1 ring-black/10" />
@@ -27,22 +27,14 @@ export default function Footer() {
           </ul>
         </div>
         <div>
-          <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink">Account</h4>
-          <ul className="space-y-2 text-sm text-ink/60">
-            <li><Link to="/login" className="hover:text-pink-accent">Login</Link></li>
-            <li><Link to="/register" className="hover:text-pink-accent">Register</Link></li>
-            <li><Link to="/account" className="hover:text-pink-accent">My Orders</Link></li>
-          </ul>
-        </div>
-        <div>
           <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink">Follow Us</h4>
           <a
-            href="https://instagram.com"
+            href="https://www.instagram.com/jasmine___eg/"
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-2 text-sm text-ink/60 hover:text-pink-accent"
           >
-            <InstagramIcon className="h-5 w-5" /> @jasminecosmetics
+            <InstagramIcon className="h-5 w-5" /> @jasmine___eg
           </a>
         </div>
       </div>

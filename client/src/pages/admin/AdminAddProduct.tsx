@@ -89,7 +89,7 @@ export default function AdminAddProduct({ editing, onDone }: Props) {
     if (!files || files.length === 0) return;
     try {
       const base64s = await Promise.all(Array.from(files).map((f) => fileToBase64(f)));
-      setForm((prev) => ({ ...prev, images: [...prev.images, ...base64s].slice(0, 5) }));
+      setForm((prev) => ({ ...prev, images: [...prev.images, ...base64s].slice(0, 15) }));
       toast('Images uploaded successfully');
     } catch {
       swal.fire({ title: 'Could not read the images', icon: 'error' });
@@ -217,7 +217,7 @@ export default function AdminAddProduct({ editing, onDone }: Props) {
         {/* Upload images */}
         <div>
           <label className="mb-2 block text-sm font-medium text-ink/70">
-            Product Images (up to 5)
+            Product Images (up to 15)
           </label>
           <label className="btn-outline cursor-pointer py-2">
             Upload Images

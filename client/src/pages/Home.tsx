@@ -13,12 +13,12 @@ const HERO_IMG = '/heronew.png';
 const HERO_MOBILE_IMG = '/heronew.png';
 
 const INSTA_IMAGES = [
-  'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=500&q=80',
-  'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=500&q=80',
-  'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=500&q=80',
-  'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?auto=format&fit=crop&w=500&q=80',
-  'https://images.unsplash.com/photo-1503236823255-94609f598e71?auto=format&fit=crop&w=500&q=80',
-  'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=500&q=80',
+  { src: '/assets/insta1.jpeg', href: 'https://www.instagram.com/reel/DCpZ_53RWaV/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==' },
+  { src: '/assets/insta2.jpeg', href: 'https://www.instagram.com/reel/DCpZ_53RWaV/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==' },
+  { src: '/assets/insta3.jpeg', href: 'https://www.instagram.com/p/C04ndj-sRu1/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==' },
+  { src: '/assets/insta4.jpeg', href: 'https://www.instagram.com/p/C0HwXOroBuy/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==' },
+  { src: '/assets/insta5.png', href: 'https://www.instagram.com/p/C0rm2-bMwlK/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==' },
+  { src: '/assets/insta6.png', href: 'https://www.instagram.com/p/C1NbIvssGdf/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==' },
 ];
 
 function FeaturedCarousel({ products }: { products: Product[] }) {
@@ -215,16 +215,16 @@ export default function Home() {
           <h2 className="section-title">Follow @jasmine___eg</h2>
         </div>
         <div className="grid grid-cols-3 gap-2 sm:gap-4 md:grid-cols-6">
-          {INSTA_IMAGES.map((src, i) => (
+          {INSTA_IMAGES.map((item, i) => (
             <a
               key={i}
-              href="https://www.instagram.com/jasmine___eg/#"
+              href={item.href}
               target="_blank"
               rel="noreferrer"
               className="group relative aspect-square overflow-hidden rounded-xl"
             >
               <img
-                src={src}
+                src={item.src}
                 alt="Instagram post"
                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
               />

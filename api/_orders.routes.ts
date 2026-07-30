@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { Order, Product, PromoCode } from './_models';
 import { auth, optionalAuth, requireAdmin } from './_middleware';
-import { shippingFor } from './_config';
+import { shippingFor, sendOrderNotificationEmail } from './_config';
 import { promoStatus } from './_promocodes.routes';
 
 const router = Router();
@@ -99,6 +99,9 @@ router.post('/', optionalAuth, async (req, res) => {
     total,
     paymentMethod: 'COD',
   });
+
+  // Await so the email is sent before the serverless function can be frozen; failures are logged, not thrown.
+  await sendOrderNotificationEmail(order);
 
   res.status(201).json({ order });
 });
